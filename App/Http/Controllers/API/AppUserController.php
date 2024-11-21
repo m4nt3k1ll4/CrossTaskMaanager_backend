@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AppUser;
 use App\Models\Role;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\AppUserResource;
+use App\Http\Resources\RoleResource;
 use Validator;
 
 class AppUserController extends Controller
@@ -38,7 +39,7 @@ class AppUserController extends Controller
 
         $token = $user->createToken('LaravelAuthApp', $scopes)->accessToken;
 
-        return response()->json(['token' => $token], 201); 
+        return response()->json(['token' => $token], 201);
     }
 
         /**
@@ -49,8 +50,9 @@ class AppUserController extends Controller
     public function index()
     {
         $users = AppUser::with('role')->get(); // Trae usuarios con sus roles
-        return response()->json($users, 200);
+        return response()->json(AppUserResource::collection($users), 200);
     }
+
 
     /**
      * Display the specified user.
@@ -66,7 +68,7 @@ class AppUserController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        return response()->json($user, 200);
+        return response()->json(new AppUserResource($user), 200);
     }
 
     /**

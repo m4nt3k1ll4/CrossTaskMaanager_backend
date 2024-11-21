@@ -33,6 +33,9 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('scopes:manage-users')->group(function () {
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', AppUserController::class);
+    Route::apiResource('headquarters', HeadquarterController::class);
+    Route::apiResource('comments', CommentController::class);
+    Route::apiResource('tasks', TaskController::class);
     });
 
 //Task Routes
@@ -44,17 +47,14 @@ Route::middleware('scopes:manage-tasks,view-tasks')->group(function () {
     Route::get('tasks/{taskId}/images', [TaskController::class, 'getImages']);
     Route::post('tasks/{taskId}/images', [TaskController::class, 'postImages']);
     Route::delete('tasks/{taskId}/images/{imageId}', [TaskController::class, 'deleteImage']);
+    Route::apiResource('comments', CommentController::class);
     });
 
 //Advisers
 Route::middleware('scopes:view-tasks')->group(function () {
     Route::get('tasks/{id}', [TaskController::class, 'show']);
+    Route::put('tasks/{id}',[TaskController::class, 'update']);
+    Route::apiResource('comments', CommentController::class);
     });
-
-//Headquarters
-Route::apiResource('headquarters', HeadquarterController::class);
-
-//Comments
-Route::apiResource('comments', CommentController::class);
 
 });
