@@ -44,7 +44,6 @@ Route::middleware('scopes:manage-tasks,view-tasks')->group(function () {
     Route::get('tasks/{taskId}/images', [TaskController::class, 'getImages']);
     Route::post('tasks/{taskId}/images', [TaskController::class, 'postImages']);
     Route::delete('tasks/{taskId}/images/{imageId}', [TaskController::class, 'deleteImage']);
-
     });
 
 //Advisers

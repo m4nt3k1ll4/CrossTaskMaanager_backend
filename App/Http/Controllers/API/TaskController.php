@@ -198,9 +198,6 @@ public function unassignTaskById($adviserTaskId)
 }
 
 
-//image methods
-
-//aca ningun metodo funciona
 
 public function getImages($taskId)
 {
@@ -280,7 +277,7 @@ public function deleteImage(Request $request, $taskId, $imageId)
         $task = Task::findOrFail($taskId);
         $image = AdvicerTaskImage::findOrFail($imageId);
 
-        if ($task->user_id !== $request->user()->id) {
+        if ($task->user_id !== $request->user()->id&& !$request->user()->isCeo()) {
             return response()->json(['error' => 'User not assigned to this task'], 403);
         }
 
