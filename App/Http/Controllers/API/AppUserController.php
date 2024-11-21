@@ -13,13 +13,13 @@ use Validator;
 
 class AppUserController extends Controller
 {
-    public function register(Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:app_users',
             'password' => 'required|string|min:8',
-            'role' => 'required|exists:roles,id'
+            'role_id' => 'required|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
@@ -31,9 +31,9 @@ class AppUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => $request->role,
+            'role_id' => $request->role_id,
         ]);
-        $role = Role::find($request->role);
+        $role = Role::find($request->role_id);
         $scopes = json_decode($role->scopes);
 
 

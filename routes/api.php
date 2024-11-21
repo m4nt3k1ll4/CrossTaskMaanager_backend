@@ -22,7 +22,7 @@ use App\Http\Controllers\Api\CommentController;
 
 //public routes
 Route::apiResource('permissions', PermissionController::class);
-Route::post('register', [AppUserController::class, 'register']);
+Route::post('register', [AppUserController::class, 'store']);
 Route::post('login', [AuthController::class, 'login']);
 
 //auth routes
