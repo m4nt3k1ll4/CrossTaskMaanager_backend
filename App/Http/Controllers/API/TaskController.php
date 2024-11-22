@@ -23,7 +23,7 @@ class TaskController extends Controller
         $this->authorize('viewAny', Task::class);
 
         try {
-            $tasks = Task::with(['headquarter'])->get();
+            $tasks = Task::with(['comments','images'])->get();
             return response()->json(['status' => 'success', 'data' => $tasks], 200);
         } catch (\Exception $e) {
             return $this->handleError('Error fetching tasks', $e);

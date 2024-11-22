@@ -11,13 +11,12 @@ class Task extends Model
         'description',
         'priority',
         'due_date',
-        'headquarter_id',
     ];
 
 
-    public function headquarter()
+    public function comments()
     {
-        return $this->belongsTo(Headquarter::class);
+        return $this->hasMany(Comment::class);
     }
 
     public function images()
@@ -38,10 +37,10 @@ class Task extends Model
      * @param int $headquarterId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeOfHeadquarter($query, $headquarterId)
-    {
-        return $query->where('headquarter_id', $headquarterId);
-    }
+    // public function scopeOfHeadquarter($query, $headquarterId)
+    // {
+    //     return $query->where('headquarter_id', $headquarterId);
+    // }
 
     /**
      * Scope a query to only include tasks of a given user.

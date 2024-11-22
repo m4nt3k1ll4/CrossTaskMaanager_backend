@@ -8,7 +8,6 @@ use App\Models\AppUser;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\AppUserResource;
-use App\Http\Resources\RoleResource;
 use Validator;
 
 class AppUserController extends Controller
