@@ -29,7 +29,7 @@ class HeadquarterController extends Controller
 
         $manager = AppUser::find($request->manager_id);
         if (!$manager || !$manager->isManager()) {
-            return response()->json(['error' => 'The user is not a manager'], 400);
+            return response()->json(['error' => 'Unauthorized The user is not a manager'], 400);
         }
 
         $headquarter = Headquarter::create($request->all());

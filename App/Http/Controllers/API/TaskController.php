@@ -7,7 +7,6 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AdvicerTaskImage;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class TaskController extends Controller
@@ -24,7 +23,7 @@ class TaskController extends Controller
 
         try {
             $tasks = Task::with(['comments','images'])->get();
-            return response()->json(['status' => 'success', 'data' => $tasks], 200);
+            return response()->json($tasks, 200);
         } catch (\Exception $e) {
             return $this->handleError('Error fetching tasks', $e);
         }

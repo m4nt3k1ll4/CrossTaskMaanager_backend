@@ -14,14 +14,6 @@ class Headquarter extends Model
     {
         return $this->belongsTo(AppUser::class, 'manager_id');
     }
-
-    /**
-     * Get the advisers associated with the headquarter.
-     */
-    public function advisers()
-    {
-        return $this->belongsToMany(AppUser::class, 'adviser_headquarters', 'headquarter_id', 'user_id');
-    }
 }
 
 
