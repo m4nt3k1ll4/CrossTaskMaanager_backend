@@ -13,45 +13,33 @@ class Task extends Model
         'due_date',
     ];
 
+    protected $casts = [
+        'due_date' => 'datetime',
+    ];
 
     public function comments()
     {
         return $this->hasMany(Comment::class);
     }
 
+
     public function images()
     {
         return $this->hasMany(AdvicerTaskImage::class, 'task_id');
     }
 
+
     public function users()
     {
-        return $this->belongsToMany(AppUser::class,'adviser_task','task_id', 'user_id');
+        return $this->belongsToMany(AppUser::class, 'adviser_task', 'task_id', 'user_id');
     }
 
 
-    /**
-     * Scope a query to only include tasks of a given headquarter.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $headquarterId
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    // public function scopeOfHeadquarter($query, $headquarterId)
-    // {
-    //     return $query->where('headquarter_id', $headquarterId);
-    // }
-
-    /**
-     * Scope a query to only include tasks of a given user.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeOfUser($query, $userId)
     {
-        return $query->where('user_id', $userId);
+        return $query->whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        });
     }
 }
 

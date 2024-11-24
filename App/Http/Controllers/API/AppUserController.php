@@ -18,37 +18,35 @@ class AppUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:app_users',
             'password' => 'required|string|min:8',
-            'role_id' => 'required|exists:roles,id'
+            'role_id' => 'required|exists:roles,id',
+            'headquarter_id' => 'nullable|exists:headquarters,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-
-        $user = AppUser::create([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role_id' => $request->role_id,
-        ]);
+            'headquarter_id' => $request->role_id == 3 ? $request->headquarter_id : null,
+        ];
+
+        $user = AppUser::create($data);
+
         $role = Role::find($request->role_id);
         $scopes = json_decode($role->scopes);
 
-
         $token = $user->createToken('LaravelAuthApp', $scopes)->accessToken;
 
-        return response()->json(['token' => $token], 201);
+        return response()->json(['token' => $token, 'user' => $user], 201);
     }
 
-        /**
-     * Display a listing of the users.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index()
     {
-        $users = AppUser::with('role')->get(); // Trae usuarios con sus roles
+        $users = AppUser::with('role')->get();
         return response()->json(AppUserResource::collection($users), 200);
     }
 
@@ -89,14 +87,14 @@ class AppUserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:app_users,email,' . $id,
             'password' => 'sometimes|string|min:8',
-            'role_id' => 'sometimes|exists:roles,id', // Verifica que el rol exista
+            'role_id' => 'sometimes|exists:roles,id',
+            'headquarter_id' => 'nullable|exists:headquarters,id', 
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        // Actualiza solo los campos proporcionados
         if ($request->has('name')) {
             $user->name = $request->name;
         }
@@ -111,20 +109,21 @@ class AppUserController extends Controller
 
         if ($request->has('role_id')) {
             $user->role_id = $request->role_id;
+
+            if ($request->role_id != 3) {
+                $user->headquarter_id = null;
+            }
+        }
+
+        if ($request->has('headquarter_id') && $user->role_id == 3) {
+            $user->headquarter_id = $request->headquarter_id;
         }
 
         $user->save();
 
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
-
-    /**
-     * Remove the specified user from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy($id)
+        public function destroy($id)
     {
         $user = AppUser::find($id);
 

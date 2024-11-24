@@ -7,12 +7,14 @@ class HeadquarterSeeder extends Seeder
 {
     public function run()
     {
-        Headquarter::insert([
-            ['name' => 'Piedecuesta','manager_id' => 2],
-            ['name' => 'Florida','manager_id' => 3],
-            ['name' => 'Ciudadela','manager_id' => 4],
-        ]);
+        $headquarters = [
+            ['id' => 1, 'name' => 'Piedecuesta'],
+            ['id' => 2, 'name' => 'Floridablanca'],
+            ['id' => 3, 'name' => 'Ciudadela'],
+        ];
+
+        foreach ($headquarters as $headquarter) {
+            Headquarter::create($headquarter);
+        }
     }
 }
-
-

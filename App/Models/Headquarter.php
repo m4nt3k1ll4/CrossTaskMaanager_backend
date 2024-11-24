@@ -10,7 +10,12 @@ class Headquarter extends Model
     /**
      * Get the manager associated with the headquarter.
      */
-    public function manager()
+
+     public function users()
+     {
+        return $this->hasMany(AppUser::class);
+     }
+     public function manager()
     {
         return $this->belongsTo(AppUser::class, 'manager_id');
     }

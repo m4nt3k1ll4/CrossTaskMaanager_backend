@@ -11,7 +11,7 @@ class CreateHeadquartersTable extends Migration
         Schema::create('headquarters', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('manager_id')->constrained('app_users')->onDelete('cascade');
+            $table->unsignedBigInteger('manager_id')->nullable(); // Definir columna sin clave foránea
             $table->timestamps();
         });
     }
@@ -21,5 +21,3 @@ class CreateHeadquartersTable extends Migration
         Schema::dropIfExists('headquarters');
     }
 }
-
-

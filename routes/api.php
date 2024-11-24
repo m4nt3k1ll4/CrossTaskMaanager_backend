@@ -53,8 +53,8 @@ Route::middleware('scopes:manage-tasks,view-tasks')->group(function () {
 //Advisers
 Route::middleware('scopes:view-tasks')->group(function () {
     Route::get('tasks/{id}', [TaskController::class, 'show']);
+    Route::get('/tasks-assigned', [TaskController::class, 'getAssignedTasks']);
     Route::put('tasks/{id}',[TaskController::class, 'update']);
     Route::apiResource('comments', CommentController::class);
     });
-
 });

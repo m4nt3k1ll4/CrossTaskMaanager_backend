@@ -19,6 +19,7 @@ class AppUserResource extends JsonResource
             'password' => $includePassword ? $this->password : null,
             'role_id' => $this->role_id,
             'role' => new RoleResource($this->role),
+            'headquarter' => $this->headquarter,
 
         ];
     }

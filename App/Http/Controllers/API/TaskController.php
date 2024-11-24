@@ -41,11 +41,12 @@ class TaskController extends Controller
         $this->authorize('create', Task::class);
 
         try {
+
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
-                'priority' => 'required|in:low,medium,high',
-                'due_date' => 'required|date',
+                'priority' => 'required|string|in:low,medium,high',
+                'due_date' => 'required|string',
             ]);
 
             $task = Task::create($validatedData);
@@ -133,8 +134,6 @@ class TaskController extends Controller
 
 //task assignation methods
 
-//   aca tengo problemas con el metodo delete unassignTaskById($adviserTaskId)
-
 
 public function getTasksAndUsers()
 {
@@ -152,36 +151,53 @@ public function getTasksAndUsers()
     }
 }
 
+public function getAssignedTasks()
+{
+    try {
+        $assignedTasks = AdviserTask::with(['task', 'user'])
+            ->select('id', 'task_id', 'user_id', 'status')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'assignedTasks' => $assignedTasks,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Failed to retrieve assigned tasks',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 
 public function assignTaskToAdviser(Request $request)
 {
-
     $request->validate([
         'task_id' => 'required|exists:tasks,id',
         'user_id' => 'required|exists:app_users,id',
     ]);
 
     try {
-
         $task = Task::findOrFail($request->task_id);
         $user = AppUser::findOrFail($request->user_id);
-
 
         if ($task->users()->where('user_id', $user->id)->exists()) {
             return response()->json(['error' => 'Task already assigned to this user'], 400);
         }
 
-
-        $task->users()->attach($user->id);
+        $task->users()->attach($user->id, ['status' => 'uncompleted']);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Task assigned to adviser successfully.'
+            'message' => 'Task assigned to adviser successfully.',
         ], 200);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Failed to assign task', 'message' => $e->getMessage()], 500);
     }
 }
+
 
 public function unassignTaskById($adviserTaskId)
 {

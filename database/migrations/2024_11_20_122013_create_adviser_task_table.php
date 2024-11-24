@@ -17,6 +17,7 @@ class CreateAdviserTaskTable extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('app_users')->onDelete('set null');
             $table->foreignId('task_id')->nullable()->constrained('tasks')->onDelete('set null');
+            $table->text('status');
             $table->timestamps();
         });
     }

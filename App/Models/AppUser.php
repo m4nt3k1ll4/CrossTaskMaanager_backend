@@ -21,11 +21,9 @@ class AppUser extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
-
-
-    public function headquarters()
+    public function headquarter()
     {
-        return $this->belongsToMany(Headquarter::class, 'adviser_headquarters', 'user_id', 'headquarter_id');
+        return $this->belongsTo(Headquarter::class);
     }
 
     public function isManager()
