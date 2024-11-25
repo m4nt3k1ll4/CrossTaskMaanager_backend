@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\HeadquarterController;
 use App\Http\Controllers\Api\TaskController;
-use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\CommentController;
 
 /*
@@ -21,7 +20,6 @@ use App\Http\Controllers\Api\CommentController;
 */
 
 //public routes
-Route::apiResource('permissions', PermissionController::class);
 Route::post('register', [AppUserController::class, 'store']);
 Route::post('login', [AuthController::class, 'login']);
 
@@ -29,7 +27,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
-//CEO routes
+//scope manage users
 Route::middleware('scopes:manage-users')->group(function () {
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', AppUserController::class);
@@ -38,23 +36,27 @@ Route::middleware('scopes:manage-users')->group(function () {
     Route::apiResource('tasks', TaskController::class);
     });
 
-//Task Routes
+ //scope ManageTask
 Route::middleware('scopes:manage-tasks,view-tasks')->group(function () {
     Route::apiResource('tasks', TaskController::class);
     Route::get('/tasks-view', [TaskController::class, 'getTasksAndUsers']);
     Route::post('/tasks-assign', [TaskController::class, 'assignTaskToAdviser']);
-    Route::delete('/tasks/unassign/{adviserTaskId}', [TaskController::class, 'unassignTaskById']);
+    Route::put('/tasks-assigned/{adviserTaskId}', [TaskController::class, 'updateAssignedTaskStatus']);
+    Route::get('/tasks-assigned', [TaskController::class, 'getAssignedTasks']);
+    Route::delete('/tasks-unassign/{adviserTaskId}', [TaskController::class, 'unassignTaskById']);
     Route::get('tasks/{taskId}/images', [TaskController::class, 'getImages']);
     Route::post('tasks/{taskId}/images', [TaskController::class, 'postImages']);
     Route::delete('tasks/{taskId}/images/{imageId}', [TaskController::class, 'deleteImage']);
     Route::apiResource('comments', CommentController::class);
     });
 
-//Advisers
+ //Scope ViewTasks
 Route::middleware('scopes:view-tasks')->group(function () {
-    Route::get('tasks/{id}', [TaskController::class, 'show']);
-    Route::get('/tasks-assigned', [TaskController::class, 'getAssignedTasks']);
-    Route::put('tasks/{id}',[TaskController::class, 'update']);
+    Route::put('/tasks-assigned/{adviserTaskId}', [TaskController::class, 'updateAssignedTaskStatus']);
+    Route::put('/tasks-assigned', [TaskController::class, 'getAssignedTasks']);
     Route::apiResource('comments', CommentController::class);
+    Route::get('tasks/{taskId}/images', [TaskController::class, 'getImages']);
+    Route::post('tasks/{taskId}/images', [TaskController::class, 'postImages']);
+    Route::delete('tasks/{taskId}/images/{imageId}', [TaskController::class, 'deleteImage']);
     });
 });

@@ -36,12 +36,7 @@ class AppUserController extends Controller
 
         $user = AppUser::create($data);
 
-        $role = Role::find($request->role_id);
-        $scopes = json_decode($role->scopes);
-
-        $token = $user->createToken('LaravelAuthApp', $scopes)->accessToken;
-
-        return response()->json(['token' => $token, 'user' => $user], 201);
+        return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
     }
 
     public function index()
@@ -50,13 +45,6 @@ class AppUserController extends Controller
         return response()->json(AppUserResource::collection($users), 200);
     }
 
-
-    /**
-     * Display the specified user.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id)
     {
         $user = AppUser::with('role')->find($id);
@@ -68,13 +56,6 @@ class AppUserController extends Controller
         return response()->json(new AppUserResource($user), 200);
     }
 
-    /**
-     * Update the specified user in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id)
     {
         $user = AppUser::find($id);
@@ -88,7 +69,7 @@ class AppUserController extends Controller
             'email' => 'sometimes|string|email|max:255|unique:app_users,email,' . $id,
             'password' => 'sometimes|string|min:8',
             'role_id' => 'sometimes|exists:roles,id',
-            'headquarter_id' => 'nullable|exists:headquarters,id', 
+            'headquarter_id' => 'nullable|exists:headquarters,id',
         ]);
 
         if ($validator->fails()) {
@@ -123,7 +104,8 @@ class AppUserController extends Controller
 
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
-        public function destroy($id)
+
+    public function destroy($id)
     {
         $user = AppUser::find($id);
 
@@ -135,5 +117,4 @@ class AppUserController extends Controller
 
         return response()->json(['message' => 'User deleted successfully'], 200);
     }
-
 }

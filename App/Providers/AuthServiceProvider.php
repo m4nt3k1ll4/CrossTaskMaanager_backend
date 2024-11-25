@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
 use App\Policies\TaskPolicy;
+use App\Models\Task;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        'App\Models\Task' => 'App\Policies\TaskPolicy',
+
+        Task::class => TaskPolicy::class,
     ];
 
     /**

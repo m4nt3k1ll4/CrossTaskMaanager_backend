@@ -12,7 +12,7 @@ class CreateRolesTable extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->timestamps();
-            $table->string('scopes');
+            $table->json('scopes');
         });
     }
 

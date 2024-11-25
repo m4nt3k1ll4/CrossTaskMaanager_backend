@@ -48,7 +48,7 @@ class AppUser extends Authenticatable
 
     public function scopes()
     {
-        return [];
+        return $this->token()->scopes;
     }
 
     public function tasks(){

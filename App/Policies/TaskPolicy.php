@@ -1,41 +1,81 @@
 <?php
-
 namespace App\Policies;
 
-use App\Models\AppUser;
 use App\Models\Task;
+use App\Models\AppUser; // Cambiar esto si el modelo de usuario tiene otro nombre
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TaskPolicy
 {
     use HandlesAuthorization;
 
+    /**
+     * Determina si el usuario puede ver cualquier tarea.
+     *
+     * @param  \App\Models\AppUser  $user
+     * @return bool
+     */
     public function viewAny(AppUser $user)
     {
-        return in_array($user->role->name, ['manager', 'ceo']);
+        return $user->hasScope('view-tasks');
     }
 
+    /**
+     * Determina si el usuario puede ver una tarea específica.
+     *
+     * @param  \App\Models\AppUser  $user
+     * @param  \App\Models\Task  $task
+     * @return bool
+     */
     public function view(AppUser $user, Task $task)
     {
-        return $user->role->name === 'ceo' ||
-               ($user->role->name === 'manager' && $task->headquarter_id == $user->headquarter_id) ||
-               ($user->role->name === 'adviser' && $task->assigned_to_id === $user->id);
+        // Si el usuario tiene el scope o está asignado a la tarea
+        return $user->hasScope('view-tasks') || $user->id === $task->assigned_user_id;
     }
 
+    /**
+     * Determina si el usuario puede crear una tarea.
+     *
+     * @param  \App\Models\AppUser  $user
+     * @return bool
+     */
     public function create(AppUser $user)
     {
-        return in_array($user->role->name, ['manager', 'ceo']);
+        return $user->hasScope('manage-tasks');
     }
 
-    public function update(AppUser $user)
+    /**
+     * Determina si el usuario puede actualizar una tarea.
+     *
+     * @param  \App\Models\AppUser  $user
+     * @param  \App\Models\Task  $task
+     * @return bool
+     */
+    public function update(AppUser $user, Task $task)
     {
-        return $user->role->name === 'ceo' ||
-               ($user->role->name === 'manager' && $task->headquarter_id == $user->headquarter_id) ||
-               ($user->role->name === 'adviser' && $task->assigned_to_id === $user->id);
+        return $user->hasScope('manage-tasks') || $user->id === $task->assigned_user_id;
     }
 
-    public function delete(AppUser $user)
+    /**
+     * Determina si el usuario puede eliminar una tarea.
+     *
+     * @param  \App\Models\AppUser  $user
+     * @param  \App\Models\Task  $task
+     * @return bool
+     */
+    public function delete(AppUser $user, Task $task)
     {
-        return $user->role->name === 'ceo';
+        return $user->hasScope('manage-tasks');
+    }
+
+    /**
+     * Determina si el usuario puede asignar una tarea.
+     *
+     * @param  \App\Models\AppUser  $user
+     * @return bool
+     */
+    public function assign(AppUser $user)
+    {
+        return $user->hasScope('manage-tasks');
     }
 }
