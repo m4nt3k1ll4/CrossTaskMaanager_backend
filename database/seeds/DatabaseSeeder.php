@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             HeadquarterSeeder::class,
             AppUserSeeder::class,
             AssignManagerToHeadquartersSeeder::class,
+            TaskSeeder::class,
         ]);
     }
 }
