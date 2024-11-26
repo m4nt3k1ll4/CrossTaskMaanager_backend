@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,15 +18,26 @@ class AppUser extends Authenticatable
         'password', 'remember_token',
     ];
 
+    // Relación con Role
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
+
+    // Relación con Headquarter
     public function headquarter()
     {
-        return $this->belongsTo(Headquarter::class);
+        return $this->belongsTo(Headquarter::class, 'headquarter_id');
     }
 
+    // Relación con Tasks
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'adviser_task', 'user_id', 'task_id')
+                    ->withPivot('status');
+    }
+
+    // Métodos de Roles
     public function isManager()
     {
         return $this->role_id == 2;
@@ -41,6 +53,17 @@ class AppUser extends Authenticatable
         return $this->role_id == 3;
     }
 
+    public function hasRole($roleName)
+    {
+        return $this->role->name === $roleName;
+    }
+
+    // (Opcional) Métodos para scopes si usas Passport
+    public function token()
+    {
+        return $this->hasOne('Laravel\Passport\Token');
+    }
+
     public function hasScope($scope)
     {
         return in_array($scope, $this->scopes());
@@ -50,14 +73,4 @@ class AppUser extends Authenticatable
     {
         return $this->token()->scopes;
     }
-
-    public function tasks(){
-        return $this->belongsToMany(Task::class, 'adviser_task', 'user_id', 'task_id');
-    }
-    public function images(){
-        return $this->hasMany(AdvicerTaskImage::class, 'user_id');
-    }
 }
-
-
-

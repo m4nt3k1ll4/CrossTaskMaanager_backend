@@ -31,8 +31,15 @@ class Task extends Model
 
     public function users()
     {
-        return $this->belongsToMany(AppUser::class, 'adviser_task', 'task_id', 'user_id');
+        return $this->belongsToMany(AppUser::class, 'adviser_task', 'task_id', 'user_id')
+        ->withPivot('status');
     }
+    public function advisers()
+{
+    return $this->belongsToMany(AppUser::class, 'adviser_task', 'task_id', 'user_id')
+                ->withPivot('status');
+}
+
 
 
     public function scopeOfUser($query, $userId)

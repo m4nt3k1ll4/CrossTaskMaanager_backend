@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\HeadquarterController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,8 @@ Route::middleware('scopes:manage-users')->group(function () {
     Route::apiResource('headquarters', HeadquarterController::class);
     Route::apiResource('comments', CommentController::class);
     Route::apiResource('tasks', TaskController::class);
+    Route::get('/dashboard/ceo', [DashboardController::class, 'getCEOData']);
+    Route::get('/dashboard/manager', [DashboardController::class, 'getManagerData']);
     });
 
  //scope ManageTask
@@ -48,6 +51,8 @@ Route::middleware('scopes:manage-tasks,view-tasks')->group(function () {
     Route::post('tasks-images/{taskId}', [TaskController::class, 'postImages']);
     Route::delete('tasks-images/{taskId}/{imageId}', [TaskController::class, 'deleteImage']);
     Route::apiResource('comments', CommentController::class);
+    Route::get('/dashboard/ceo', [DashboardController::class, 'getCEOData']);
+    Route::get('/dashboard/manager', [DashboardController::class, 'getManagerData']);
     });
 
  //Scope ViewTasks
