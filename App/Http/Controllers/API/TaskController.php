@@ -11,16 +11,9 @@ use Illuminate\Validation\ValidationException;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of tasks.
-     */
-
 //task CRUD
     public function index(Request $request)
     {
-
-        //$this->authorize('viewAny', Task::class);
-
         try {
             $tasks = Task::with(['comments', 'images'])->get();
             return response()->json($tasks, 200);
@@ -29,19 +22,13 @@ class TaskController extends Controller
         }
     }
 
-    /**
-     * Store a newly created task in storage.
-     */
     public function store(Request $request)
     {
         if (!$request->user()->tokenCan('manage-tasks')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
         $this->authorize('create', Task::class);
-
         try {
-
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
@@ -58,9 +45,6 @@ class TaskController extends Controller
         }
     }
 
-    /**
-     * Display the specified task.
-     */
     public function show(Request $request, $id)
     {
         if (!$request->user()->tokenCan('view-tasks')) {
@@ -79,19 +63,14 @@ class TaskController extends Controller
         }
     }
 
-    /**
-     * Update the specified task in storage.
-     */
     public function update(Request $request, $id)
     {
         if (!$request->user()->tokenCan('manage-tasks')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Encontramos la tarea que se va a actualizar
         $task = Task::findOrFail($id);
 
-        // Pasamos la tarea como segundo argumento a la política
         $this->authorize('update', $task);
 
         try {
@@ -102,7 +81,6 @@ class TaskController extends Controller
                 'due_date' => 'sometimes|date',
             ]);
 
-            // Actualizamos la tarea con los datos validados
             $task->update($validatedData);
 
             return response()->json(['status' => 'success', 'message' => 'Task updated successfully', 'task' => $task], 200);
@@ -121,14 +99,11 @@ class TaskController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Encontramos la tarea que se va a eliminar
         $task = Task::findOrFail($id);
 
-        // Pasamos la tarea como segundo argumento a la política
         $this->authorize('delete', $task);
 
         try {
-            // Eliminamos la tarea
             $task->delete();
             return response()->json(['status' => 'success', 'message' => 'Task deleted successfully'], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -140,11 +115,19 @@ class TaskController extends Controller
 
 //task assignation methods
 
-    public function getTasksAndUsers()
+    public function getTasksAndUsers(request $request)
     {
-        try {
 
+        try {
             $tasks = Task::all();
+            $user = $request->user();
+            if ($user->isManager()) {
+                $users = AppUser::where('role_id', 3)->where('headquarter_id', $user->headquarter_id)->get();
+                return response()->json([
+                    'tasks' => $tasks,
+                    'users' => $users,
+                ], 200);
+            }
             $users = AppUser::where('role_id', 3)->get();
 
             return response()->json([
@@ -156,12 +139,35 @@ class TaskController extends Controller
         }
     }
 
-    public function getAssignedTasks()
+    public function getAssignedTasks(request $request)
     {
         try {
+            $user = $request->user();
+            if ($user->isManager()) {
+                $headquarterId = $user->headquarter_id;
+                $assignedTasks = AdviserTask::with(['task:id,title', 'user:id,name'])
+                    ->whereHas('user', function ($query) use ($headquarterId) {
+                        $query->where('headquarter_id', $headquarterId);
+                    })
+                    ->get(['id', 'task_id', 'user_id', 'status']);
+                //error_log(json_encode($assignedTasks));
+                $response = $assignedTasks->map(function ($assignment) {
+                    return [
+                        'id' => $assignment->id,
+                        'task_id' => $assignment->task_id,
+                        'task_title' => $assignment->task->title ?? null,
+                        'user_id' => $assignment->user_id,
+                        'user_name' => $assignment->user->name ?? null,
+                        'status' => $assignment->status,
+                    ];
+                });
+                return response()->json($response, 200);
+            }
             $assignedTasks = AdviserTask::with(['task:id,title', 'user:id,name'])
                 ->get(['id', 'task_id', 'user_id', 'status']);
+
             $response = $assignedTasks->map(function ($assignment) {
+
                 return [
                     'id' => $assignment->id,
                     'task_id' => $assignment->task_id,
@@ -230,7 +236,7 @@ class TaskController extends Controller
                     'task_id' => $adviserTask->task_id,
                     'user_id' => $adviserTask->user_id,
                     'status' => $adviserTask->status,
-                ]
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update task status', 'message' => $e->getMessage()], 500);

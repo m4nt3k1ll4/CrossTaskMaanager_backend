@@ -19,13 +19,14 @@ class AppUserSeeder extends Seeder
             2 => 'Floridablanca',
             3 => 'Ciudadela',
         ];
-        
+
         foreach ($headquarters as $id => $headquarter) {
             AppUser::create([
                 'name' => "Manager $headquarter",
                 'email' => strtolower("$headquarter.manager@example.com"),
                 'password' => bcrypt('password'),
                 'role_id' => 2,
+                'headquarter_id' => $id,
             ]);
         }
 
