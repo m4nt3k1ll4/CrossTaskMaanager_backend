@@ -32,19 +32,28 @@ class DashboardController extends Controller
                 'completed_tasks' => $completedTasks,
                 'pending_tasks' => $pendingTasks->count(),
                 'compliance_percentage' => $compliancePercentage,
-                'pending_users' => $pendingTasks->map(function ($task) {
-                    return $task->advisers->map(function ($adviser) use ($task) {
-                        return [
-                            'task_title' => $task->title,
-                            'user' => $adviser->name,
-                        ];
+                'pending_users' => $headquarter->advisers->map(function ($adviser) {
+                    $adviserPendingTasks = $adviser->tasks->filter(function ($task) {
+                        return $task->pivot->status === 'uncompleted';
                     });
-                })->collapse(),
+
+                    if ($adviserPendingTasks->isNotEmpty()) {
+                        return $adviserPendingTasks->map(function ($task) use ($adviser) {
+                            return [
+                                'task_title' => $task->title,
+                                'user' => $adviser->name,
+                            ];
+                        });
+                    }
+                    return null;
+                })->filter()->collapse(), 
             ];
         });
 
         return response()->json(['headquarters' => $data], 200);
     }
+
+
 
 
     public function getManagerData(Request $request)
