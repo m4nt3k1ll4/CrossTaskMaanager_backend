@@ -63,5 +63,6 @@ Route::middleware('scopes:view-tasks')->group(function () {
     Route::get('tasks-images{taskId}', [TaskController::class, 'getImages']);
     Route::post('tasks-images/{taskId}', [TaskController::class, 'postImages']);
     Route::delete('tasks-images/{taskId}/{imageId}', [TaskController::class, 'deleteImage']);
+    Route::get('/tasks-assigned', [TaskController::class, 'getAssignedTasks']);
     });
 });

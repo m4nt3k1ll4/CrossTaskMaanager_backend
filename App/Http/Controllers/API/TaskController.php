@@ -143,6 +143,25 @@ class TaskController extends Controller
     {
         try {
             $user = $request->user();
+            error_log(json_encode($user));
+            if ($user->isAdviser()) {
+                $userId = $user->id;
+                $assignedTasks = AdviserTask::with(['task:id,title', 'user:id,name'])->where('user_id', $userId)
+                    ->get(['id', 'task_id', 'user_id', 'status']);
+                $response = $assignedTasks->map(function ($assignment) {
+                    return [
+                        'id' => $assignment->id,
+                        'task_id' => $assignment->task_id,
+                        'task_title' => $assignment->task->title ?? null,
+                        'user_id' => $assignment->user_id,
+                        'user_name' => $assignment->user->name ?? null,
+                        'status' => $assignment->status,
+                    ];
+                });
+                return response()->json($response, 200);
+            }
+
+            
             if ($user->isManager()) {
                 $headquarterId = $user->headquarter_id;
                 $assignedTasks = AdviserTask::with(['task:id,title', 'user:id,name'])
@@ -150,7 +169,6 @@ class TaskController extends Controller
                         $query->where('headquarter_id', $headquarterId);
                     })
                     ->get(['id', 'task_id', 'user_id', 'status']);
-                //error_log(json_encode($assignedTasks));
                 $response = $assignedTasks->map(function ($assignment) {
                     return [
                         'id' => $assignment->id,

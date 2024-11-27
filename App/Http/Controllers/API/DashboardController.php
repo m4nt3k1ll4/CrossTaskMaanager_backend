@@ -33,17 +33,19 @@ class DashboardController extends Controller
                 'pending_tasks' => $pendingTasks->count(),
                 'compliance_percentage' => $compliancePercentage,
                 'pending_users' => $pendingTasks->map(function ($task) {
-                    $adviser = $task->advisers->first();
-                    return [
-                        'task_title' => $task->title,
-                        'user' => $adviser ? $adviser->name : null,
-                    ];
-                }),
+                    return $task->advisers->map(function ($adviser) use ($task) {
+                        return [
+                            'task_title' => $task->title,
+                            'user' => $adviser->name,
+                        ];
+                    });
+                })->collapse(),
             ];
         });
 
         return response()->json(['headquarters' => $data], 200);
     }
+
 
     public function getManagerData(Request $request)
 {
