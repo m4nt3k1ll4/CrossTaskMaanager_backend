@@ -139,11 +139,29 @@ class TaskController extends Controller
         }
     }
 
+    public function getAssignedTaskId(Request $request, $id)
+    {
+        if (!$request->user()->tokenCan('view-tasks')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // $this->authorize('view', Task::class);
+
+        try {
+            $assignedTask = AdviserTask::with(['user', 'task'])->findOrFail($id);
+            return response()->json($assignedTask, 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Assigned Task not found'], 404);
+        } catch (\Exception $e) {
+            return $this->handleError('Error fetching Assigned task', $e);
+        }
+    }
+
     public function getAssignedTasks(request $request)
     {
         try {
             $user = $request->user();
-            error_log(json_encode($user));
             if ($user->isAdviser()) {
                 $userId = $user->id;
                 $assignedTasks = AdviserTask::with(['task:id,title', 'user:id,name'])->where('user_id', $userId)
@@ -161,7 +179,7 @@ class TaskController extends Controller
                 return response()->json($response, 200);
             }
 
-            
+
             if ($user->isManager()) {
                 $headquarterId = $user->headquarter_id;
                 $assignedTasks = AdviserTask::with(['task:id,title', 'user:id,name'])
@@ -298,20 +316,20 @@ class TaskController extends Controller
         }
     }
 
-    public function postImages(Request $request, $taskId)
+    public function postImages(Request $request, string $assignedTaskId)
     {
         try {
-            if (!$request->user()->tokenCan('manage-tasks')) {
+            if (!$request->user()->tokenCan('view-tasks')) {
                 return $this->handleError('Unauthorized', new \Exception('Token scope error'));
             }
 
             $request->validate([
                 'image' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             ]);
+            $assignedTask = AdviserTask::findOrFail($assignedTaskId);
+            //$task = Task::findOrFail($assignedTask->task_id);
 
-            $task = Task::findOrFail($taskId);
-
-            if ($task->user_id !== $request->user()->id && !$request->user()->isCeo()) {
+            if ($assignedTask->user_id !== $request->user()->id && !$request->user()->isCeo()) {
                 return response()->json(['error' => 'User not assigned to this task'], 403);
             }
 
@@ -322,17 +340,19 @@ class TaskController extends Controller
                 $status = file_exists(public_path('storage/' . $filePath)) ? 'uploaded' : 'failed';
 
                 $advicerTaskImage = AdvicerTaskImage::create([
-                    'task_id' => $taskId,
+                    'task_id' => $assignedTask->task_id,
                     'user_id' => $request->user()->id,
                     'status' => $status,
                     'image_path' => '/storage/' . $filePath,
                 ]);
+                return response()->json($advicerTaskImage,201);
 
-                return response()->json([
+
+                /* return response()->json([
                     'status' => 'success',
                     'message' => $status === 'uploaded' ? 'Image uploaded successfully' : 'Image upload failed',
                     'data' => $advicerTaskImage,
-                ], 201);
+                ], 201); */
             }
 
             return response()->json(['error' => 'No image uploaded'], 400);
