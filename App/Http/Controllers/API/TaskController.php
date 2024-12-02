@@ -145,7 +145,6 @@ class TaskController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // $this->authorize('view', Task::class);
 
         try {
             $assignedTask = AdviserTask::with(['user', 'task'])->findOrFail($id);
@@ -327,7 +326,6 @@ class TaskController extends Controller
                 'image' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             ]);
             $assignedTask = AdviserTask::findOrFail($assignedTaskId);
-            //$task = Task::findOrFail($assignedTask->task_id);
 
             if ($assignedTask->user_id !== $request->user()->id && !$request->user()->isCeo()) {
                 return response()->json(['error' => 'User not assigned to this task'], 403);
@@ -347,12 +345,6 @@ class TaskController extends Controller
                 ]);
                 return response()->json($advicerTaskImage,201);
 
-
-                /* return response()->json([
-                    'status' => 'success',
-                    'message' => $status === 'uploaded' ? 'Image uploaded successfully' : 'Image upload failed',
-                    'data' => $advicerTaskImage,
-                ], 201); */
             }
 
             return response()->json(['error' => 'No image uploaded'], 400);
@@ -364,7 +356,7 @@ class TaskController extends Controller
     public function deleteImage(Request $request, $taskId, $imageId)
     {
         try {
-            if (!$request->user()->tokenCan('manage-tasks')) {
+            if (!$request->user()->tokenCan('view-tasks')) {
                 return $this->handleError('Unauthorized', new \Exception('Token scope error'));
             }
 
