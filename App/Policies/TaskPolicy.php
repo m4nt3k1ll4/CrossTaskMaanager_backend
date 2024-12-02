@@ -1,8 +1,8 @@
 <?php
 namespace App\Policies;
 
-use App\Models\Task;
-use App\Models\AppUser; // Cambiar esto si el modelo de usuario tiene otro nombre
+use App\Models\AppUser;
+use App\Models\Task; // Cambiar esto si el modelo de usuario tiene otro nombre
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TaskPolicy
@@ -78,4 +78,14 @@ class TaskPolicy
     {
         return $user->hasScope('manage-tasks');
     }
+    public function restore(AppUser $user, Task $task)
+    {
+        return $user->hasScope('manage-tasks');
+    }
+
+    public function forceDelete(AppUser $user, Task $task)
+    {
+        return $user->hasScope('manage-tasks');
+    }
+
 }

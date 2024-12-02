@@ -27,7 +27,7 @@ class TaskController extends Controller
         if (!$request->user()->tokenCan('manage-tasks')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-        $this->authorize('create', Task::class);
+        //$this->authorize('create', Task::class);
         try {
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
@@ -51,7 +51,7 @@ class TaskController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $this->authorize('view', Task::class);
+        //$this->authorize('view', Task::class);
 
         try {
             $task = Task::with(['user', 'headquarter'])->findOrFail($id);
@@ -71,7 +71,7 @@ class TaskController extends Controller
 
         $task = Task::findOrFail($id);
 
-        $this->authorize('update', $task);
+        //$this->authorize('update', $task);
 
         try {
             $validatedData = $request->validate([
@@ -101,7 +101,7 @@ class TaskController extends Controller
 
         $task = Task::findOrFail($id);
 
-        $this->authorize('delete', $task);
+        //$this->authorize('delete', $task);
 
         try {
             $task->delete();
